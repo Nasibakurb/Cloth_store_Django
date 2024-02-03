@@ -1,0 +1,67 @@
+{% extends "layout/base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+     <title>{% block title %}Просмотр{% endblock %}</title>
+    {% bootstrap_css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/site.css' %}">
+
+</head>
+<body>
+{% block content %}
+<h2>Элементы заказа №{{ order.id }}</h2>
+    <ul class="list-group">
+        {% for item in order_items %}
+        {% if user.is_superuser %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+            <span class="mr-4">Название: {{ item.product.name }}</span>
+            <span class="mr-4">Количество: {{ item.quantity }}</span>
+            <span class="mr-4">Статус: {{ item.get_status_display }}</span>
+        </div>
+            <l class="d-flex align-items-center">
+                <form method="post" action="{% url 'change_cart_item_status' item.id %}">
+                    {% csrf_token %}
+                    <select name="new_status">
+                    {% for status, label in item.STATUS_CHOICES %}
+                        <option value="{{ status }}" {% if item.status == status %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                    </select>
+                <button class="btn btn-success btn-sm" type="submit">Изменить статус</button>
+                </form>
+                <form method="post" action="{% url 'delete_order_item' item.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-danger btn-sm" type="submit">Удалить</button>
+                </form>
+        </li>
+
+        {% endif %}
+              {% if not user.is_superuser %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                <span class="mr-4">Название: {{ item.product.name }}</span>
+                <span class="mr-4">Количество: {{ item.quantity }}</span>
+                <span class="mr-4">Статус: {{ item.get_status_display }}</span>
+                </div>
+                {% if item.status == "delivered" %}
+                    <div class="d-flex align-items-center">
+                    <form method="post" action="{% url 'return_order_item' item.id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-danger btn-sm" type="submit">Возврат</button>
+                    </form>
+                {% endif %}
+
+            </li>
+            {% endif %}
+
+            {% endfor %}
+        </ul>
+
+
+{% endblock %}
+</body>
+</html>

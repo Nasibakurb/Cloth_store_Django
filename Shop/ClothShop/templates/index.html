@@ -1,0 +1,97 @@
+{% extends "layout/base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+     <title>{% block title %}Главная{% endblock %}</title>
+    {% bootstrap_css %}
+</head>
+<body>
+{% block content %}
+
+<h1>Список продукции</h1>
+</br>
+  <form method="get" enctype="multipart/form-data" id="filter-form">
+            {% csrf_token %}
+            <div class="form-inline">
+                <div class="form-group ml-6">
+                    {{ form.size.label_tag }}
+                    {{ form.size }}
+                </div>
+                <div class="form-group ml-4">
+                    {{ form.brand.label_tag }}
+                    {{ form.brand }}
+                </div>
+                <div class="form-group ml-4 mb-3">
+                    {{ form.color.label_tag }}
+                    {{ form.color }}
+                </div>
+                <div class="form-group ml-4 mb-3">
+                    {{ form.min_price.label_tag }}
+                    {{ form.min_price }}
+                </div>
+                <div class="form-group mr-4">
+                    {{ form.max_price.label_tag }}
+                    {{ form.max_price }}
+                </div>
+            </div>
+      </br>
+            <button type="submit" class="btn btn-info">Применить фильтры</button>
+            <a href="{% url 'index' %}" class="btn btn-warning ml-2">Сбросить фильтры</a>
+        </form>
+</br>
+</br>
+<div class="row">
+    {% for product in products %}
+        <div class="col-md-4">
+            <div class="card mb-4">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="card-img-top">
+                {% else %}
+                    <img src="{% static 'images/clear.png' %}" alt="Default Image" class="card-img-top">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">Price: ${{ product.price }}</p>
+                    {% if username %}
+                        <form method="post" action="{% url 'add_to_cart' product.id %}">
+                            {% csrf_token %}
+                            <button class="btn btn-primary mb-2" type="submit">Добавить в корзину</button>
+                        </form>
+                        {% if user.is_superuser %}
+                            <div class="mt-2">
+                                <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">Просмотр</a>
+                                <a href="{% url 'edit_product' product.id %}" class="btn btn-primary">Редактировать</a>
+                            </div>
+                            <form method="post" action="{% url 'delete_product' product.id %}" class="mt-2">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger ml-1">Удалить</button>
+                            </form>
+                        {% else %}
+                            <a href="{% url 'product_detail' product.id %}" class="btn btn-primary mt-2">Просмотр</a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">Просмотр</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+
+
+  <ul class="pagination justify-content-center">
+        {% for i in products.paginator.page_range %}
+            <li class="page-item {% if i == comments.number %}active{% endif %}">
+                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+    {% endblock %}
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    {% bootstrap_javascript %}
+</body>
+</html>

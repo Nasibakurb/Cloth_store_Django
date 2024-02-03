@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    {% load bootstrap4 %}
+    {% bootstrap_css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/site.css' %}">
+
+</head>
+<body>
+  <div id="main-content">
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+    <a class="navbar-brand" href="#">
+        <img src="{% static 'images/logo.png' %}" alt="Logo" height="50">
+    </a>
+     {% if username %}
+    <h5 class="navbar-text">Пользователь: {{ username }}</h5>
+    <ul class="navbar-nav ml-auto">
+        <a class="navbar-brand" href="{% url 'carts' %}">
+            <img src="{% static 'images/buy.png' %}" alt="buy" height="40">
+        </a>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'index' %}">Главная</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'profile' %}">Профиль</a>
+        </li>
+        {% if user.is_superuser %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'create_product' %}">Добавить</a>
+            </li>
+        {% endif %}
+        <li class="nav-item">
+            <a href="{% url 'logout_view' %}" class="btn btn-outline-danger ml-2">Выйти</a>
+        </li>
+    </ul>
+{% else %}
+    <h5 class="navbar-text">Пользователь: Гость</h5>
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'index' %}">Главная</a>
+        </li>
+        <li class="nav-item">
+            <a href="{% url 'login_view' %}" class="btn btn-outline-primary ml-2">Войти</a>
+        </li>
+    </ul>
+{% endif %}
+    </div>
+</nav>
+    
+    <div class="container mt-4" id="back">
+        {% block content %}{% endblock %}
+    </div>
+</div>
+    <footer class="bg-dark text-light text-center py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>Контактные номера</h5>
+                <p>Телефон: +7 (777) 010-9977</p>
+                <p>Телефон: +7 (777) 666-9948</p>
+                <p>Телефон: +7 (707) 989-1122</p>
+                <p>Телефон: +7 (707) 565-8998</p>
+                <p>Email: ClothShopinfo@mail.ru</p>
+            </div>
+            <div class="col-md-4">
+                <h5>Все права защищены</h5>
+                <p>KN Company Name © 2023</p>
+            </div>
+            <div class="col-md-4">
+                <p>Политика конфиденциальности</p>
+                <p>Условия использования</p>
+                {% if username %}
+                    <h5>Корзина</h5>
+                    <a class="navbar-brand" href="{% url 'carts' %}">
+                    <img src="{% static 'images/buy.png' %}" alt="buy" height="50">
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</footer>
+    {% bootstrap_javascript %}
+</body>
+</html>

@@ -1,0 +1,87 @@
+{% extends "layout/base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+     <title>{% block title %}Просмотр{% endblock %}</title>
+    {% bootstrap_css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/site.css' %}">
+
+</head>
+<body>
+    {% block content %}
+        <h2>Детализация</h2>
+        <div class="backg">
+        <div class="container">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid w-25">
+                {% else %}
+                    <img src="{% static 'images/clear.png' %}" alt="Default Image" class="img-fluid w-25">
+                {% endif %}
+            </br>
+            </br>
+                <div class="card-body">
+                    <h2 class="card-title">Название: {{ product.name }}</h2>
+                    <p class="card-text product-price">Цена: ${{ product.price }}</p>
+                    <p class="card-text product-size">Размер: {{ product.size }}</p>
+                    <p class="card-text product-brand">Бренд: {{ product.brand }}</p>
+                    <p class="card-text product-color">цвет: {{ product.color }}</p>
+                    <p class="card-text product-description">Описание: {{ product.description }}</p>
+                </div>
+        </div>
+        </div>
+    </br>
+
+  {% if comments %}
+            <h2>Комментарии:</h2>
+            <ul class="list-unstyled">
+                {% for comment in comments %}
+                <li>
+                    <div class="card mb-2">
+                        <div class="card-header">
+                            {{ comment.user.username }} ({{ comment.created_at }})
+                        </div>
+                        <div class="card-body">
+                            {{ comment.text }}
+                        </div>
+
+                        {% if user.is_authenticated and user == comment.user %}
+                        <form method="post" action="{% url 'delete_comment' comment_id=comment.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Удалить</button>
+                        </form>
+                    {% endif %}
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+
+      <ul class="pagination justify-content-center">
+        {% for i in comments.paginator.page_range %}
+            <li class="page-item {% if i == comments.number %}active{% endif %}">
+                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+    {% if username %}
+            <form method="post" action="{% url 'add_comment' product_id=product.id %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ form.text.label_tag }}
+                    {{ form.text }}
+                </div>
+                <button type="submit" class="btn btn-secondary">Добавить комментарий</button>
+            </form>
+   {% endif %}
+       </br>
+        </div>
+    </br>
+    </br>
+{% endblock %}
+</body>
+</html>

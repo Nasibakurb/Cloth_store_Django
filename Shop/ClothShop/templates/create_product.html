@@ -1,0 +1,55 @@
+{% extends "layout/base.html" %}
+{% load bootstrap4 %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+     <title>{% block title %}Добавление товара{% endblock %}</title>
+    {% bootstrap_css %}
+</head>
+<body>
+    {% block content %}
+    <div class="container">
+        <h2 class="mt-4 mb-4"> Создание продукта {{ product.name }}</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+    <div class="form-inline">
+    <div class="form-group col-6 mt-4">
+        {{ form.name.label_tag }}
+        {{ form.name }}
+    </div>
+    <div class="form-group col-6 mt-4">
+        {{ form.price.label_tag }}
+        {{ form.price }}
+    </div>
+     <div class="form-group col-6 mt-4">
+        {{ form.color.label_tag }}
+        {{ form.color }}
+    </div>
+    <div class="form-group col-6 mt-4">
+        {{ form.size.label_tag }}
+        {{ form.size }}
+    </div>
+    <div class="form-group col-6 mt-4">
+        {{ form.brand.label_tag }}
+        {{ form.brand }}
+    </div>
+    <div class="form-group col-6 mt-4">
+        {{ form.image.label_tag }}
+        {{ form.image }}
+    </div>
+    <div class="form-group col-6 mt-4">
+        {{ form.description.label_tag }}
+        {{ form.description }}
+    </div>
+    </div>
+    </br>
+    <button type="submit" class="btn btn-primary ml-4">Сохранить</button>
+    <a href="{% url 'index' %}" class="btn btn-secondary ml-2">Отмена</a>
+    </form>
+    </br>
+    </div>
+    {% endblock %}
+</body>
+</html>

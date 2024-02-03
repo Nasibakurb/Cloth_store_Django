@@ -1,0 +1,178 @@
+{% extends "layout/base.html" %}
+{% load bootstrap4 %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+     <title>{% block title %}Профиль{% endblock %}</title>
+    {% bootstrap_css %}
+</head>
+<body>
+{% block content %}
+    <div class="container mt-5">
+        <div class="p-3 mb-2 bg-white text-back">
+            <h2>Профиль пользователя</h2>
+            <p>Имя пользователя: {{ user.username }}</p>
+            <p>Email: {{ user.email }}</p>
+            {% if bank_card %}
+                <h3>Данные банковской карты</h3>
+                <p>Номер карты: **** **** **** {{ bank_card.card_number|slice:'-4:' }}</p>
+                <p>Срок действия: {{ bank_card.expiration_date }}</p>
+                <p>CVV: {{ bank_card.cvv }}</p>
+            {% endif %}
+         </div>
+        </br>
+  <h3>Добавить/обновить банковскую карту</h3>
+  <form class="form-inline" method="post" action="{% url 'add_bank_card' %}">
+    {% csrf_token %}
+     <div class="form-group mr-4">
+         <label for="card_number" class="mb-2">Номер карты:</label>
+         <input type="text" name="card_number" id="card_number" class="form-control" value="{{ bank_card.card_number }}" required>
+     </div>
+      <div class="form-group mr-4">
+          <label for="expiration_date" class="mb-2">Срок действия (MM/YY):</label>
+          <input type="text" name="expiration_date" id="expiration_date" class="form-control" value="{{ bank_card.expiration_date }}" required>
+     </div>
+      <div class="form-group mr-4">
+       <label for="cvv" class="mb-2">CVV:</label>
+        <input type="text" name="cvv" id="cvv" class="form-control" value="{{ bank_card.cvv }}" required>
+      </div>
+    <button type="submit" class="btn btn-primary mt-2">Сохранить</button>
+  </form>
+
+        </br>
+        <h3>Смена пароля</h3>
+        <form class="form-inline" method="post" action="{% url 'change_password_api' %}" id="change-password-form">
+            {% csrf_token %}
+            <div class="form-group mr-4">
+                <label class="mr-2" for="old_password">Текущий пароль:</label>
+                <input type="password" name="old_password" id="old_password" class="form-control" required>
+            </div>
+            <div class="form-group mr-4">
+                <label class="mr-2" for="new_password">Новый пароль:</label>
+                <input type="password" name="new_password" id="new_password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Сменить пароль</button>
+        </form>
+        </br>
+            <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+
+        <h2>Ваши заказы</h2>
+        {% if orders %}
+        <ul class="list-group">
+            {% for order in orders %}
+            {% if user.is_superuser %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                <span class="mr-4">Профиль {{  order.user.username }}</span>
+                <span class="mr-4">Заказ №{{ order.id }}</span>
+                <span class="mr-4">Фамилия {{ order.last_name }}</span>
+                <span class="mr-4">Имя {{ order.first_name }}</span>
+                <span class="mr-4">Банковская карта {{ order.bank_card.card_number }}</span>
+                </div>
+                <div class="d-flex align-items-center">
+                <form method="post" action="{% url 'order_detail' order.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-info btn-sm" type="submit">Посмотреть</button>
+                </form>
+                <a href="{% url 'download_invoice_pdf' order.id %}" class="btn btn-primary btn-sm ml-2">Чек</a>
+                <form method="post" action="{% url 'delete_order' order.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-danger btn-sm" type="submit">Удалить</button>
+                </form>
+            </li>
+            {% endif %}
+              {% if not user.is_superuser %}
+                {% if order.user == user %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                 <span class="mr-4">Заказ №{{ order.id }}</span>
+                <span class="mr-4">Фамилия {{ order.last_name }}</span>
+                <span class="mr-4">Имя {{ order.first_name }}</span>
+                <span class="mr-4">Банковская карта {{ order.bank_card.card_number }}</span>
+                </div>
+                 <div class="d-flex align-items-center">
+                <form method="post" action="{% url 'order_detail' order.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-info btn-sm" type="submit">Посмотреть</button>
+                </form>
+                <a href="{% url 'download_invoice_pdf' order.id %}" class="btn btn-primary btn-sm ml-2">Чек</a>
+                {% endif %}
+            </li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>У вас пока нет заказов.</p>
+    {% endif %}
+
+    </br>
+        {% if user.is_superuser %}
+    <h2>Список пользователей</h2>
+<ul class="list-group">
+    {% for user in users %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <span class="mr-4">{{ user.username }}</span>
+                <span class="mr-4">{{ user.email }}</span>
+            </div>
+            <div class="d-flex align-items-center">
+                {% if not user.is_superuser %}
+                    <form method="post" action="{% url 'make_admin' user.id %}" class="mr-2">
+                        {% csrf_token %}
+                        <button class="btn btn-success btn-sm" type="submit">Сделать админом</button>
+                    </form>
+                {% endif %}
+                <form method="post" action="{% url 'delete_user' user.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-danger btn-sm" type="submit">Удалить</button>
+                </form>
+            </div>
+        </li>
+    {% endfor %}
+</ul>
+        {% endif %}
+
+        </br>
+        </br>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#change-password-form").submit(function (e) {
+                e.preventDefault();
+
+                var oldPassword = $("#old_password").val();
+                var newPassword = $("#new_password").val();
+
+                var requestData = {
+                    old_password: oldPassword,
+                    new_password: newPassword,
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'change_password_api' %}",
+                    data: JSON.stringify(requestData),
+                    contentType: "application/json",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    success: function (data) {
+                        alert(data.detail);
+                        window.location.href = "{% url 'profile' %}";
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        var errors = xhr.responseJSON;
+                        console.error(errors);
+                       $("#error-message").html("Ошибка смены пароля: " + errors.detail).show();
+                    },
+                });
+            });
+        });
+    </script>
+{% endblock %}
+</body>
+</html>

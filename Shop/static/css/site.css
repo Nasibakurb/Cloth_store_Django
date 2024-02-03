@@ -1,0 +1,67 @@
+h1{
+    color: gray;
+}
+
+.form-group label {
+   font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group textarea {
+    width: 100%;
+}
+
+body{
+    background-image: url('../images/backgLogo.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+.card-title, .product-price, .product-description {
+    font-size: 25px;
+    color: gray;
+}
+
+.backg{
+    background-color: white;
+}
+
+.page-item.active, .page-link {
+    background-color: black;
+    border-color: white;
+    color: grey;
+}
+.page-link{
+    font-size:25px;
+}
+
+.btn.btn-danger {
+    margin-left: 20px;
+}
+
+.deleteB{
+        margin-top: 10px;
+
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+#main-content {
+    flex: 1;
+}
+
+footer {
+    background-color: #343a40; /* Цвет фона футера */
+    color: white; /* Цвет текста футера */
+    text-align: center;
+    padding: 10px;
+}
+
+
+
